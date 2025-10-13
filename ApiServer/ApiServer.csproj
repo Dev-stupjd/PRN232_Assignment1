@@ -11,12 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\BussinessObjects\BusinessObjects.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BussinessObjects\BusinessObjects.csproj" />
-    <ProjectReference Include="..\Services\Services.csproj" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

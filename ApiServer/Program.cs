@@ -1,11 +1,24 @@
-
+using Repositories.Interface;
+using Repositories.Repository;
+using Services.Interface;
+using Services.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Repositories
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<INewsArticleRepository, NewsArticleRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+
+// Services
+builder.Services.AddScoped<IAccountService, AccountService>();
+//builder.Services.AddScoped<, >();
+//builder.Services.AddScoped<, >();
+//builder.Services.AddScoped<, >();
+
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
