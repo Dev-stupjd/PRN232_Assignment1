@@ -1,0 +1,78 @@
+@page
+@model ApiClient.Pages.NewsArticle.IndexModel
+@{
+    ViewData["Title"] = "News Articles";
+}
+
+<h2>News Articles</h2>
+
+<div class="mb-2">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create Article</button>
+    <hr />
+    <form method="get" class="input-group">
+        <input name="q" class="form-control" placeholder="Search..." />
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </form>
+    <hr />
+    </div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Headline</th>
+            <th>Created</th>
+            <th>Author</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var a in Model.Articles)
+    {
+        <tr>
+            <td>@a.NewsArticleId</td>
+            <td>@a.NewsTitle</td>
+            <td>@a.Headline</td>
+            <td>@a.CreatedDate?.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@a.AuthorName</td>
+            <td>@(a.NewsStatus == true ? "Active" : "Inactive")</td>
+            <td class="text-end">
+                @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+                @{
+                    var role = HttpContextAccessor.HttpContext?.Session.GetString("UserRole");
+                    var userId = HttpContextAccessor.HttpContext?.Session.GetString("UserId");
+                    var isAdmin = role == "1";
+                    var isOwner = !string.IsNullOrEmpty(userId) && short.TryParse(userId, out var uid) && a.CreatedById == uid;
+                }
+                @if (isAdmin || isOwner)
+                {
+                    <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#editModal-@a.NewsArticleId">Edit</button>
+                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@a.NewsArticleId">Delete</button>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+ </table>
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Create Article</h5></div>
+    <form method="post" asp-page-handler="Create">
+        <div class="modal-body">
+            <div class="mb-2"><label class="form-label">Title</label><input class="form-control" name="NewsTitle" /></div>
+            <div class="mb-2"><label class="form-label">Headline</label><input class="form-control" name="Headline" /></div>
+            <div class="mb-2"><label class="form-label">Content</label><textarea class="form-control" name="NewsContent"></textarea></div>
+            <div class="mb-2"><label class="form-label">Source</label><input class="form-control" name="NewsSource" /></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+    </form>
+  </div></div>
+</div>
+
+

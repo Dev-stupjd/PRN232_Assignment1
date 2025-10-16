@@ -1,0 +1,50 @@
+@page
+@model ApiClient.Pages.Admin.Reports.IndexModel
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<h2>News Report</h2>
+
+<form method="post" class="row g-3 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Start</label>
+        <input asp-for="StartDate" type="datetime-local" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label">End</label>
+        <input asp-for="EndDate" type="datetime-local" class="form-control" />
+    </div>
+    <div class="col-auto align-self-end">
+        <button class="btn btn-primary" type="submit">Run</button>
+    </div>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Headline</th>
+            <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var a in Model.Articles)
+    {
+        <tr>
+            <td>@a.NewsArticleId</td>
+            <td>@a.NewsTitle</td>
+            <td>@a.Headline</td>
+            <td>@a.CreatedDate?.ToString("yyyy-MM-dd HH:mm")</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+

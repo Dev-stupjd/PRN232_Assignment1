@@ -1,0 +1,65 @@
+@page
+@model ApiClient.Pages.Admin.Accounts.IndexModel
+@{
+    ViewData["Title"] = "Accounts";
+}
+
+<h2>Accounts</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createModal">Create Account</button>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var a in Model.Accounts)
+    {
+        <tr>
+            <td>@a.AccountId</td>
+            <td>@a.AccountName</td>
+            <td>@a.AccountEmail</td>
+            <td>@a.AccountRole</td>
+            <td class="text-end"></td>
+        </tr>
+
+    }
+    </tbody>
+</table>
+
+<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Create Account</h5></div>
+    <form method="post" asp-page-handler="Create">
+        <div class="modal-body">
+            <div class="mb-2"><label class="form-label">Name</label><input class="form-control" name="AccountName" required /></div>
+            <div class="mb-2"><label class="form-label">Email</label><input class="form-control" name="AccountEmail" type="email" required /></div>
+            <div class="mb-2">
+                <label class="form-label">Role</label>
+                <select class="form-select" name="AccountRole" required>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+            </div>
+            <div class="mb-2"><label class="form-label">Password</label><input class="form-control" name="AccountPassword" type="password" required /></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+    </form>
+  </div></div>
+</div>
+
+

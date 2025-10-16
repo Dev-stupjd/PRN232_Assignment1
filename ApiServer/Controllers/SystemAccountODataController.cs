@@ -44,6 +44,13 @@ namespace ApiServer.Controllers
                 return BadRequest(ModelState);
             }
 
+            // Assign next AccountId if not provided or invalid
+            if (account.AccountId <= 0)
+            {
+                var nextId = (_context.SystemAccounts.Max(a => (short?)a.AccountId) ?? 0) + 1;
+                account.AccountId = (short)nextId;
+            }
+
             _context.SystemAccounts.Add(account);
             _context.SaveChanges();
             return Created(account);

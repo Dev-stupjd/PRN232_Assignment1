@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models" />
+    <Folder Include="Services" />
+    <Folder Include="Pages\Category" />
+    <Folder Include="Pages\NewsArticle" />
+    <Folder Include="Pages\Profile" />
+    <Folder Include="Pages\Admin\Accounts" />
+    <Folder Include="Pages\Admin\Reports" />
+  </ItemGroup>
+
+</Project>
