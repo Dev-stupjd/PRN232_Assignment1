@@ -9,20 +9,14 @@ using System.Threading.Tasks;
 
 namespace Services.Service
 {
-    // Minimal article usage check to satisfy Assignment 1 rule
-    public interface INewsArticleRepositoryLite
-    {
-        bool AnyCreatedBy(short accountId); // or int, match your model
-    }
-
     public class AccountService : IAccountService
     {
-        private readonly IAccountRepository _repo;
-        private readonly INewsArticleRepositoryLite _articles; // for delete guard; inject a stub if not ready
+        private readonly IAccountRepository _accounts;
+        private readonly INewsArticleRepository _articles;
 
-        public AccountService(IAccountRepository repo, INewsArticleRepositoryLite articles)
+        public AccountService(IAccountRepository accounts, INewsArticleRepository articles)
         {
-            _repo = repo;
+            _accounts = accounts;
             _articles = articles;
         }
 
@@ -31,7 +25,7 @@ namespace Services.Service
         {
             if (page <= 0 || pageSize <= 0)
                 throw new ArgumentException("Invalid paging.");
-            var data = _repo.GetAllAccount().AsEnumerable();
+            var data = _accounts.GetAllAccount().AsEnumerable();
 
             if (!string.IsNullOrWhiteSpace(keyword))
             {
@@ -52,7 +46,7 @@ namespace Services.Service
         {
             if (id <= 0)
                 throw new ArgumentException("Id must be positive.", nameof(id));
-            var acc = _repo.GetAccountByID(id);
+            var acc = _accounts.GetAccountByID(id);
             return acc ?? throw new KeyNotFoundException("Account not found.");
         }
 
@@ -62,12 +56,12 @@ namespace Services.Service
             Validate(account, isUpdate: false);
 
             // (optional) enforce unique email
-            var exists = _repo.GetAllAccount()
+            var exists = _accounts.GetAllAccount()
                               .Any(a => a.AccountEmail!.Equals(account.AccountEmail, StringComparison.OrdinalIgnoreCase));
             if (exists)
                 throw new InvalidOperationException("Email already exists.");
 
-            _repo.AddAccount(account);
+            _accounts.AddAccount(account);
             return account;
         }
 
@@ -76,19 +70,19 @@ namespace Services.Service
         {
             if (account == null)
                 throw new ArgumentNullException(nameof(account));
-            if (_repo.GetAccountByID(account.AccountId) is null)
+            if (_accounts.GetAccountByID(account.AccountId) is null)
                 throw new KeyNotFoundException("Account not found.");
 
             Validate(account, isUpdate: true);
 
-            _repo.UpdateAccount(account);
+            _accounts.UpdateAccount(account);
             return account;
         }
 
         // DELETE respecting assignment rule: cannot delete if the account created any articles
         public bool Delete(int id)
         {
-            var existing = _repo.GetAccountByID(id);
+            var existing = _accounts.GetAccountByID(id);
             if (existing is null)
                 return false;
 
@@ -97,7 +91,7 @@ namespace Services.Service
             if (_articles.AnyCreatedBy((short)existing.AccountId))
                 return false;
 
-            _repo.DeleteAccount(existing);
+            _accounts.DeleteAccount(existing);
             return true;
         }
 
@@ -107,7 +101,7 @@ namespace Services.Service
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
                 return null;
 
-            return _repo.GetAllAccount()
+            return _accounts.GetAllAccount()
                         .FirstOrDefault(a =>
                             a.AccountEmail!.Equals(email.Trim(), StringComparison.OrdinalIgnoreCase) &&
                             a.AccountPassword == password);

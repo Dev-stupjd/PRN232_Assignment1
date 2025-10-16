@@ -1,0 +1,29 @@
+/* Custom CSS for Swagger UI to show OData information */
+.swagger-ui .info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.swagger-ui .info .title {
+    color: white !important;
+}
+
+.swagger-ui .info .description {
+    color: #f0f0f0 !important;
+    margin-top: 10px;
+}
+
+.swagger-ui .info .description::after {
+    content: "\A\A 🔗 OData Endpoints Available:\A • GET /odata/Category - Categories with OData querying\A • GET /odata/NewsArticle - News articles with OData querying\A • GET /odata/SystemAccount - Accounts with OData querying\A • GET /odata/Tag - Tags with OData querying\A • GET /odata/$metadata - OData metadata\A\A 📖 OData Query Examples:\A • Filter: ?$filter=NewsStatus eq true\A • Sort: ?$orderby=CreatedDate desc\A • Select: ?$select=CategoryId,CategoryName\A • Expand: ?$expand=Category\A • Paginate: ?$top=10&$skip=20";
+    white-space: pre-line;
+    font-family: monospace;
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 15px;
+    display: block;
+}
+

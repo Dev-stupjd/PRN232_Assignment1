@@ -14,5 +14,9 @@ namespace Repositories.Interface
         void UpdateArticle(NewsArticle article);
         void DeleteArticle(NewsArticle article);
         NewsArticle GetArticleByID(string id);
+        bool AnyCreatedBy(short accountId);
+        List<NewsArticle> GetActiveArticles();
+        List<NewsArticle> GetArticlesByAuthor(short authorId);
+        List<NewsArticle> GetArticlesByDateRange(DateTime startDate, DateTime endDate);
     }
 }

@@ -43,5 +43,9 @@ namespace DataAccessObjects.DAO
                 _context.SaveChanges();
             }
         }
+        public bool AnyNewsInCategory(int categoryId)
+        {
+            return _context.NewsArticles.Any(n => n.CategoryId == categoryId);
+        }
     }
 }

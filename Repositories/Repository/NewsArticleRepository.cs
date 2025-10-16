@@ -22,5 +22,10 @@ namespace Repositories.Repository
         public void UpdateArticle(NewsArticle NewsArticle) => _newsArticleDAO.UpdateNewsArticle(NewsArticle);
         public void DeleteArticle(NewsArticle NewsArticle) => _newsArticleDAO.DeleteNewsArticle(NewsArticle.NewsArticleId);
         public NewsArticle GetArticleByID(string id) => _newsArticleDAO.GetNewsArticleById(id);
+        public bool AnyCreatedBy(short accountId)
+        => _newsArticleDAO.GetAllNewsArticles().Any(n => n.CreatedById == accountId);
+        public List<NewsArticle> GetActiveArticles() => _newsArticleDAO.GetActiveArticles();
+        public List<NewsArticle> GetArticlesByAuthor(short authorId) => _newsArticleDAO.GetArticlesByAuthor(authorId);
+        public List<NewsArticle> GetArticlesByDateRange(DateTime startDate, DateTime endDate) => _newsArticleDAO.GetArticlesByDateRange(startDate, endDate);
     }
 }

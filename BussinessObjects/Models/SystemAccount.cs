@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace BussinessObjects.Models;
 
 public partial class SystemAccount
 {
+    [Key]
     public short AccountId { get; set; }
 
     public string? AccountName { get; set; }

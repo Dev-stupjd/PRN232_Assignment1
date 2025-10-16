@@ -22,5 +22,6 @@ namespace Repositories.Repository
         public void UpdateCategory(Category category) => _categoryDAO.UpdateCategory(category);
         public void DeleteCategory(Category category) => _categoryDAO.DeleteCategory(category.CategoryId);
         public Category GetCategoryByID(int id) => _categoryDAO.GetCategoryById(id);
+        public bool AnyNewsInCategory(int categoryId) => _categoryDAO.AnyNewsInCategory(categoryId);
     }
 }

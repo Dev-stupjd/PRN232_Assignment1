@@ -14,5 +14,6 @@ namespace Repositories.Interface
         void UpdateCategory(Category category);
         void DeleteCategory(Category category);
         Category GetCategoryByID(int id);
+        bool AnyNewsInCategory(int categoryId);
     }
 }

@@ -43,5 +43,20 @@ namespace DataAccessObjects.DAO
                 _context.SaveChanges();
             }
         }
+        public List<NewsArticle> GetActiveArticles()
+        {
+            return _context.NewsArticles.Where(n => n.NewsStatus == true).ToList();
+        }
+        public List<NewsArticle> GetArticlesByAuthor(short authorId)
+        {
+            return _context.NewsArticles.Where(n => n.CreatedById == authorId).ToList();
+        }
+        public List<NewsArticle> GetArticlesByDateRange(DateTime startDate, DateTime endDate)
+        {
+            return _context.NewsArticles
+                .Where(n => n.CreatedDate >= startDate && n.CreatedDate <= endDate)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToList();
+        }
     }
 }
