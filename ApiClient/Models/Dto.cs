@@ -3,8 +3,8 @@ namespace ApiClient.Models
     public class CategoryDto
     {
         public short CategoryId { get; set; }
-        public string? CategoryName { get; set; }
-        public string? CategoryDesciption { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public string CategoryDesciption { get; set; } = string.Empty;
         public short? ParentCategoryId { get; set; }
         public bool? IsActive { get; set; }
     }
@@ -43,6 +43,14 @@ namespace ApiClient.Models
     public class ODataListResponse<T>
     {
         public List<T> Value { get; set; } = new();
+    }
+
+    public class RestApiResponse<T>
+    {
+        public bool Success { get; set; }
+        public List<T> Data { get; set; } = new();
+        public int Count { get; set; }
+        public string? Error { get; set; }
     }
 }
 

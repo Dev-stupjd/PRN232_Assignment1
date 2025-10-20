@@ -21,12 +21,12 @@ namespace ApiClient.Pages.Admin.Accounts
 
         public async Task OnGet()
         {
-            var res = await _accountApi.ODataListAsync("?$orderby=AccountId%20asc&$top=100");
+            var res = await _accountApi.ODataListAsync("?$orderby=AccountName%20asc&$top=100");
             if (res == null)
             {
                 // Try to fetch raw error details to surface the real cause
                 var client = _httpClientFactory.CreateClient("Api");
-                var url = "/odata/SystemAccount?$orderby=AccountId%20desc&$top=100";
+                var url = "/odata/SystemAccount?$orderby=AccountName%20asc&$top=100";
                 try
                 {
                     var resp = await client.GetAsync(url);

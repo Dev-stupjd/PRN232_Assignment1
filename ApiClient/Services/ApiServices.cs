@@ -37,9 +37,36 @@ namespace ApiClient.Services
 
         public async Task<ODataListResponse<CategoryDto>?> ODataListAsync(string odataQuery, CancellationToken ct = default)
         {
-            var resp = await _http.GetAsync($"/odata/Category{odataQuery}", ct);
-            if (!resp.IsSuccessStatusCode) return new ODataListResponse<CategoryDto> { Value = new() };
-            return await resp.Content.ReadFromJsonAsync<ODataListResponse<CategoryDto>>(cancellationToken: ct);
+            // Try OData endpoint first, fallback to REST API if it fails
+            try
+            {
+                var resp = await _http.GetAsync($"/odata/Category{odataQuery}", ct);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ODataListResponse<CategoryDto>>(cancellationToken: ct);
+                    // Debug: Log that OData worked
+                    System.Diagnostics.Debug.WriteLine($"OData SUCCESS: {odataQuery}");
+                    return result;
+                }
+                else
+                {
+                    // Debug: Log OData failure
+                    System.Diagnostics.Debug.WriteLine($"OData FAILED: {resp.StatusCode} - {odataQuery}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Debug: Log OData exception
+                System.Diagnostics.Debug.WriteLine($"OData EXCEPTION: {ex.Message} - {odataQuery}");
+            }
+            
+            // Fallback to REST API
+            System.Diagnostics.Debug.WriteLine($"FALLBACK to REST API: {odataQuery}");
+            var restResp = await _http.GetAsync("/api/Category", ct);
+            if (!restResp.IsSuccessStatusCode) return new ODataListResponse<CategoryDto> { Value = new() };
+            
+            var restResponse = await restResp.Content.ReadFromJsonAsync<RestApiResponse<CategoryDto>>(cancellationToken: ct);
+            return new ODataListResponse<CategoryDto> { Value = restResponse?.Data ?? new() };
         }
 
         public Task<HttpResponseMessage> CreateAsync(CategoryDto dto, CancellationToken ct = default)
@@ -68,9 +95,33 @@ namespace ApiClient.Services
 
         public async Task<ODataListResponse<NewsArticleDto>?> ODataListAsync(string odataQuery, CancellationToken ct = default)
         {
-            var resp = await _http.GetAsync($"/odata/NewsArticle{odataQuery}", ct);
-            if (!resp.IsSuccessStatusCode) return new ODataListResponse<NewsArticleDto> { Value = new() };
-            return await resp.Content.ReadFromJsonAsync<ODataListResponse<NewsArticleDto>>(cancellationToken: ct);
+            // Try OData endpoint first, fallback to REST API if it fails
+            try
+            {
+                var resp = await _http.GetAsync($"/odata/NewsArticle{odataQuery}", ct);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ODataListResponse<NewsArticleDto>>(cancellationToken: ct);
+                    System.Diagnostics.Debug.WriteLine($"News OData SUCCESS: {odataQuery}");
+                    return result;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"News OData FAILED: {resp.StatusCode} - {odataQuery}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"News OData EXCEPTION: {ex.Message} - {odataQuery}");
+            }
+            
+            // Fallback to REST API
+            System.Diagnostics.Debug.WriteLine($"News FALLBACK to REST API: {odataQuery}");
+            var restResp = await _http.GetAsync("/api/NewsArticle", ct);
+            if (!restResp.IsSuccessStatusCode) return new ODataListResponse<NewsArticleDto> { Value = new() };
+            
+            var restResponse = await restResp.Content.ReadFromJsonAsync<RestApiResponse<NewsArticleDto>>(cancellationToken: ct);
+            return new ODataListResponse<NewsArticleDto> { Value = restResponse?.Data ?? new() };
         }
 
         public Task<HttpResponseMessage> CreateAsync(NewsArticleDto dto, CancellationToken ct = default)
@@ -99,9 +150,33 @@ namespace ApiClient.Services
 
         public async Task<ODataListResponse<SystemAccountDto>?> ODataListAsync(string odataQuery, CancellationToken ct = default)
         {
-            var resp = await _http.GetAsync($"/odata/SystemAccount{odataQuery}", ct);
-            if (!resp.IsSuccessStatusCode) return null; // let caller surface the failure
-            return await resp.Content.ReadFromJsonAsync<ODataListResponse<SystemAccountDto>>(cancellationToken: ct);
+            // Try OData endpoint first, fallback to REST API if it fails
+            try
+            {
+                var resp = await _http.GetAsync($"/odata/SystemAccount{odataQuery}", ct);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var result = await resp.Content.ReadFromJsonAsync<ODataListResponse<SystemAccountDto>>(cancellationToken: ct);
+                    System.Diagnostics.Debug.WriteLine($"Account OData SUCCESS: {odataQuery}");
+                    return result;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Account OData FAILED: {resp.StatusCode} - {odataQuery}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Account OData EXCEPTION: {ex.Message} - {odataQuery}");
+            }
+            
+            // Fallback to REST API
+            System.Diagnostics.Debug.WriteLine($"Account FALLBACK to REST API: {odataQuery}");
+            var restResp = await _http.GetAsync("/api/SystemAccount", ct);
+            if (!restResp.IsSuccessStatusCode) return new ODataListResponse<SystemAccountDto> { Value = new() };
+            
+            var restResponse = await restResp.Content.ReadFromJsonAsync<RestApiResponse<SystemAccountDto>>(cancellationToken: ct);
+            return new ODataListResponse<SystemAccountDto> { Value = restResponse?.Data ?? new() };
         }
 
         public Task<HttpResponseMessage> CreateAsync(SystemAccountDto dto, CancellationToken ct = default)

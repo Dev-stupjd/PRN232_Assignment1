@@ -1,50 +1,190 @@
 @page
 @model ApiClient.Pages.Admin.Reports.IndexModel
 @{
-    ViewData["Title"] = "Reports";
+    ViewData["Title"] = "News Reports";
 }
 
-<h2>News Report</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="fas fa-chart-bar text-primary me-2"></i>News Reports
+        </h2>
+        <p class="text-muted mb-0">Generate and view news article analytics</p>
+    </div>
+    <div class="d-flex align-items-center">
+        <i class="fas fa-calendar-alt text-muted me-2"></i>
+        <span class="text-muted">Report Period</span>
+    </div>
+</div>
 
-<form method="post" class="row g-3 mb-3">
-    <div class="col-auto">
-        <label class="form-label">Start</label>
-        <input asp-for="StartDate" type="datetime-local" class="form-control" />
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2"></i>Report Filters
+        </h5>
     </div>
-    <div class="col-auto">
-        <label class="form-label">End</label>
-        <input asp-for="EndDate" type="datetime-local" class="form-control" />
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-calendar-start me-1"></i>Start Date
+                </label>
+                <input asp-for="StartDate" type="datetime-local" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-calendar-end me-1"></i>End Date
+                </label>
+                <input asp-for="EndDate" type="datetime-local" class="form-control" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-primary w-100" type="submit">
+                    <i class="fas fa-play me-2"></i>Generate Report
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="col-auto align-self-end">
-        <button class="btn btn-primary" type="submit">Run</button>
-    </div>
-</form>
+</div>
 
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
-    <div class="alert alert-danger">@Model.ErrorMessage</div>
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+    </div>
 }
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Headline</th>
-            <th>Created</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var a in Model.Articles)
-    {
-        <tr>
-            <td>@a.NewsArticleId</td>
-            <td>@a.NewsTitle</td>
-            <td>@a.Headline</td>
-            <td>@a.CreatedDate?.ToString("yyyy-MM-dd HH:mm")</td>
-        </tr>
-    }
-    </tbody>
-</table>
+@if (Model.Articles != null && Model.Articles.Any())
+{
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-newspaper fa-2x mb-2"></i>
+                    <h4 class="mb-0">@Model.Articles.Count</h4>
+                    <small>Total Articles</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h4 class="mb-0">@Model.Articles.Count(a => a.NewsStatus == true)</h4>
+                    <small>Active Articles</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-pause-circle fa-2x mb-2"></i>
+                    <h4 class="mb-0">@Model.Articles.Count(a => a.NewsStatus == false)</h4>
+                    <small>Inactive Articles</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h4 class="mb-0">@Model.Articles.Select(a => a.CreatedById).Distinct().Count()</h4>
+                    <small>Unique Authors</small>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-table me-2"></i>Article Details
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag me-1"></i>ID</th>
+                        <th><i class="fas fa-heading me-1"></i>Title</th>
+                        <th><i class="fas fa-newspaper me-1"></i>Headline</th>
+                        <th><i class="fas fa-calendar me-1"></i>Created</th>
+                        <th><i class="fas fa-user me-1"></i>Author</th>
+                        <th><i class="fas fa-toggle-on me-1"></i>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Articles != null)
+                {
+                    @foreach (var a in Model.Articles)
+                    {
+                        <tr>
+                            <td><span class="badge bg-secondary">@a.NewsArticleId</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        <i class="fas fa-file-alt text-muted"></i>
+                                    </div>
+                                    <span class="fw-medium">@a.NewsTitle</span>
+                                </div>
+                            </td>
+                            <td>@a.Headline</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock text-muted me-1"></i>
+                                    <span>@a.CreatedDate?.ToString("MMM dd, yyyy HH:mm")</span>
+                                </div>
+                            </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span>@(a.CreatedById?.ToString() ?? "Unknown")</span>
+                            </div>
+                        </td>
+                            <td>
+                                @if (a.NewsStatus == true)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-pause me-1"></i>Inactive
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <div class="text-muted">
+                                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                <h5>No Data Available</h5>
+                                <p>Select a date range and generate a report to view analytics.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+</style>
 
 

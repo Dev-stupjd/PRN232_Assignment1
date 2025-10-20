@@ -1,26 +1,82 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Login";
+    Layout = "_LoginLayout";
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-12 col-md-6">
-        <h3 class="mb-3">Member Login</h3>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("UserRole");
+    var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+}
+
+@if (!string.IsNullOrEmpty(role) && !string.IsNullOrEmpty(userName))
+{
+    <div class="text-center">
+        <div class="mb-4">
+            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+            <h3 class="fw-bold">Welcome back, @userName!</h3>
+            <p class="text-muted">You are logged in as @(role == "1" ? "Administrator" : "Staff")</p>
+        </div>
+        <div class="d-grid gap-2">
+            @if (role == "1")
+            {
+                <a class="btn btn-primary btn-lg" asp-area="" asp-page="/Admin/Accounts/Index">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Admin Dashboard
+                </a>
+            }
+            else
+            {
+                <a class="btn btn-primary btn-lg" asp-area="" asp-page="/NewsArticle/Index">
+                    <i class="fas fa-newspaper me-2"></i>Go to News Dashboard
+                </a>
+            }
+            <a class="btn btn-outline-secondary" asp-area="" asp-page="/Profile/Index">
+                <i class="fas fa-user me-2"></i>View Profile
+            </a>
+            <a class="btn btn-outline-danger" asp-area="" asp-page="/Logout">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div>
+        <h4 class="mb-4 text-center">Sign In to Your Account</h4>
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
-            <div class="alert alert-danger">@Model.ErrorMessage</div>
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+            </div>
         }
         <form method="post">
             <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input asp-for="Email" class="form-control" />
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-envelope me-2"></i>Email Address
+                </label>
+                <input asp-for="Email" class="form-control form-control-lg" placeholder="Enter your email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input asp-for="Password" type="password" class="form-control" />
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-lock me-2"></i>Password
+                </label>
+                <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Enter your password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <button class="btn btn-primary" type="submit">Login</button>
+            <div class="d-grid">
+                <button class="btn btn-primary btn-lg" type="submit">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+            </div>
         </form>
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Contact your administrator for account access
+            </small>
+        </div>
     </div>
-</div>
+}

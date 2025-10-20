@@ -3,83 +3,136 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ApiClient</title>
+    <title>@ViewData["Title"] - News Management System</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/light-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ApiClient.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100 @GetThemeClass()">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">ApiClient</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index">
+                    <i class="fas fa-newspaper me-2"></i>NewsHub
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                     @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-page="/Index">
+                                <i class="fas fa-home me-1"></i>Dashboard
+                            </a>
                         </li>
                         @{
                             var role = HttpContextAccessor.HttpContext?.Session.GetString("UserRole");
+                            var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
                         }
                         @if (!string.IsNullOrEmpty(role))
                         {
-                            if (role == "2")
+                            if (role == "2") // Staff
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Category/Index">Category</a>
+                                    <a class="nav-link" asp-area="" asp-page="/Category/Index">
+                                        <i class="fas fa-tags me-1"></i>Categories
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/NewsArticle/Index">News</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Profile/Index">Profile</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Logout">Logout</a>
+                                    <a class="nav-link" asp-area="" asp-page="/NewsArticle/Index">
+                                        <i class="fas fa-newspaper me-1"></i>News Articles
+                                    </a>
                                 </li>
                             }
-                            else if (role == "1")
+                            else if (role == "1") // Admin
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Accounts/Index">Accounts</a>
+                                    <a class="nav-link" asp-area="" asp-page="/Admin/Accounts/Index">
+                                        <i class="fas fa-users me-1"></i>Accounts
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Reports/Index">Reports</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Profile/Index">Profile</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-page="/Logout">Logout</a>
+                                    <a class="nav-link" asp-area="" asp-page="/Admin/Reports/Index">
+                                        <i class="fas fa-chart-bar me-1"></i>Reports
+                                    </a>
                                 </li>
                             }
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Profile/Index">
+                                    <i class="fas fa-user me-1"></i>Profile
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (!string.IsNullOrEmpty(userName))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-1"></i>@userName
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-area="" asp-page="/Profile/Index">
+                                        <i class="fas fa-user me-2"></i>Profile
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" asp-area="" asp-page="/Logout">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Index">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                </a>
+                            </li>
                         }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - ApiClient - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <main class="flex-grow-1">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="main-content fade-in">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
         </div>
-    </footer>
+    </main>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+@functions {
+    private string GetThemeClass()
+    {
+        var httpContext = ViewContext.HttpContext;
+        var role = httpContext.Session.GetString("UserRole");
+        
+        return role switch
+        {
+            "1" => "admin-theme",
+            "2" => "staff-theme",
+            _ => ""
+        };
+    }
+}

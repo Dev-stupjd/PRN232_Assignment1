@@ -68,13 +68,22 @@ namespace Services.Service
         {
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
-            if (_categories.GetCategoryByID(category.CategoryId) is null)
+            
+            // Check if category exists without tracking
+            var existingCategory = _categories.GetCategoryByID(category.CategoryId);
+            if (existingCategory is null)
                 throw new KeyNotFoundException("Category not found.");
 
             Validate(category, isUpdate: true);
 
-            _categories.UpdateCategory(category);
-            return category;
+            // Update the existing tracked entity instead of passing the new one
+            existingCategory.CategoryName = category.CategoryName;
+            existingCategory.CategoryDesciption = category.CategoryDesciption;
+            existingCategory.ParentCategoryId = category.ParentCategoryId;
+            existingCategory.IsActive = category.IsActive;
+
+            _categories.UpdateCategory(existingCategory);
+            return existingCategory;
         }
 
         // DELETE respecting assignment rule: cannot delete if category has news articles

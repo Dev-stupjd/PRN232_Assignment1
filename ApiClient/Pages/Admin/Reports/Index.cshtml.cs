@@ -29,20 +29,48 @@ namespace ApiClient.Pages.Admin.Reports
         public async Task OnPostAsync()
         {
             var client = _factory.CreateClient("Api");
-            // Normalize to UTC and use ISO-8601 with 'Z' to satisfy OData datetime literal expectations
-            var startUtc = DateTime.SpecifyKind(StartDate, DateTimeKind.Local).ToUniversalTime();
-            var endUtc = DateTime.SpecifyKind(EndDate, DateTimeKind.Local).ToUniversalTime();
-            var filterRaw = $"CreatedDate ge {startUtc:o} and CreatedDate le {endUtc:o}";
-            var filter = Uri.EscapeDataString(filterRaw);
-            var odata = $"/odata/NewsArticle?$filter={filter}&$orderby=CreatedDate%20desc";
-            var resp = await client.GetAsync(odata);
-            if (!resp.IsSuccessStatusCode)
+
+            // Validate input dates
+            if (EndDate < StartDate)
             {
-                ErrorMessage = await resp.Content.ReadAsStringAsync();
+                ErrorMessage = "End date must be greater than or equal to start date.";
                 return;
             }
-            var data = await resp.Content.ReadFromJsonAsync<ODataListResponse<NewsArticleDto>>();
-            Articles = data?.Value ?? new();
+
+            // Normalize to UTC and format as ISO-8601 with 'Z' (OData v4 DateTimeOffset literal)
+            var startUtc = DateTime.SpecifyKind(StartDate, DateTimeKind.Local).ToUniversalTime();
+            var endUtc = DateTime.SpecifyKind(EndDate, DateTimeKind.Local).ToUniversalTime();
+
+            // Make end inclusive to the second to avoid missing items created within the same minute
+            if (endUtc.Second == 0 && endUtc.Millisecond == 0)
+            {
+                endUtc = endUtc.AddSeconds(59);
+            }
+
+            string startIso = startUtc.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            string endIso = endUtc.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+            // Build OData query: CreatedDate ge 2024-12-01T00:00:00Z and CreatedDate le 2024-12-31T23:59:59Z
+            var filterExpr = $"CreatedDate ge {startIso} and CreatedDate le {endIso}";
+            var odata = $"/odata/NewsArticle?$filter={Uri.EscapeDataString(filterExpr)}&$orderby=NewsTitle%20asc";
+
+            try
+            {
+                var resp = await client.GetAsync(odata);
+                if (!resp.IsSuccessStatusCode)
+                {
+                    var content = await resp.Content.ReadAsStringAsync();
+                    ErrorMessage = $"Report query failed ({(int)resp.StatusCode} {resp.StatusCode}). URL: {odata}. Server says: {content}";
+                    return;
+                }
+
+                var data = await resp.Content.ReadFromJsonAsync<ODataListResponse<NewsArticleDto>>();
+                Articles = (data?.Value ?? new()).OrderBy(a => a.NewsTitle).ToList();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Unexpected error calling API. URL: {odata}. Error: {ex.Message}";
+            }
         }
     }
 }
