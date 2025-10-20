@@ -1,5 +1,6 @@
 ﻿using BussinessObjects;
 using BussinessObjects.Models;
+using Microsoft.EntityFrameworkCore; // For AsNoTracking, Include, ExecuteSqlRaw, transactions
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,11 @@ namespace DataAccessObjects.DAO
         }
         public NewsArticle? GetNewsArticleById(string NewsArticleId)
         {
-            return _context.NewsArticles.FirstOrDefault(u => u.NewsArticleId == NewsArticleId);
+            // Use AsNoTracking to avoid tracking conflicts when the returned entity
+            // is only needed for read/comparison purposes in an update flow
+            return _context.NewsArticles
+                .AsNoTracking()
+                .FirstOrDefault(u => u.NewsArticleId == NewsArticleId);
         }
         public List<NewsArticle> GetAllNewsArticles()
         {
@@ -31,17 +36,40 @@ namespace DataAccessObjects.DAO
         }
         public void UpdateNewsArticle(NewsArticle NewsArticle)
         {
-            _context.Entry<NewsArticle>(NewsArticle).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            // If an instance with the same key is already tracked, detach it to avoid
+            // the EF Core tracking conflict when attaching the incoming instance
+            var local = _context.NewsArticles.Local.FirstOrDefault(e => e.NewsArticleId == NewsArticle.NewsArticleId);
+            if (local != null)
+            {
+                _context.Entry(local).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            }
+
+            _context.Attach(NewsArticle);
+            _context.Entry(NewsArticle).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             _context.SaveChanges();
         }
         public void DeleteNewsArticle(string NewsArticleId)
         {
-            var NewsArticle = GetNewsArticleById(NewsArticleId);
-            if (NewsArticle != null)
+            using var tx = _context.Database.BeginTransaction();
+
+            // 1) Hard delete all join rows first to satisfy FK
+            _context.Database.ExecuteSqlRaw(
+                "DELETE FROM [dbo].[NewsTag] WHERE [NewsArticleID] = {0}", NewsArticleId);
+
+            // 2) Ensure no tracked instances linger
+            var local = _context.NewsArticles.Local.FirstOrDefault(e => e.NewsArticleId == NewsArticleId);
+            if (local != null)
             {
-                _context.NewsArticles.Remove(NewsArticle);
-                _context.SaveChanges();
+                _context.Entry(local).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             }
+
+            // 3) Attach a stub entity and delete without extra roundtrip
+            var stub = new NewsArticle { NewsArticleId = NewsArticleId };
+            _context.Attach(stub);
+            _context.NewsArticles.Remove(stub);
+            _context.SaveChanges();
+
+            tx.Commit();
         }
         public List<NewsArticle> GetActiveArticles()
         {

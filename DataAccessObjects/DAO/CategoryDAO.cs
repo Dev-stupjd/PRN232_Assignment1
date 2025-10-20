@@ -31,7 +31,7 @@ namespace DataAccessObjects.DAO
         }
         public void UpdateCategory(Category Category)
         {
-            _context.Entry<Category>(Category).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            // Since we're updating a tracked entity, just save changes
             _context.SaveChanges();
         }
         public void DeleteCategory(int CategoryId)

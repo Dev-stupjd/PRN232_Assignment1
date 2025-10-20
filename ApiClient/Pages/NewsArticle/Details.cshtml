@@ -1,0 +1,410 @@
+@page "/NewsArticle/Details/{id}"
+@model ApiClient.Pages.NewsArticle.DetailsModel
+@{
+    ViewData["Title"] = "Article Details";
+}
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var userRole = HttpContextAccessor.HttpContext?.Session.GetString("UserRole");
+    var isLoggedIn = !string.IsNullOrEmpty(userRole);
+}
+
+@if (!isLoggedIn)
+{
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-ban fa-4x text-danger"></i>
+                        </div>
+                        <h2 class="text-danger mb-3">You're Denied!</h2>
+                        <p class="text-muted mb-4">You need to be logged in to access this page.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="/" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Go Home
+                            </a>
+                            <a href="/Profile" class="btn btn-outline-secondary">
+                                <i class="fas fa-user me-2"></i>View Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+@if (Model.Article == null)
+{
+    <div class="text-center py-5">
+        <div class="text-muted">
+            <i class="fas fa-exclamation-triangle fa-4x mb-3"></i>
+            <h4>Article Not Found</h4>
+            <p>The requested article could not be found.</p>
+            <a href="/NewsArticle" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Articles
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="fas fa-newspaper text-primary me-2"></i>Article Details
+            </h2>
+            <p class="text-muted mb-0">Full article information and content</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/NewsArticle" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Articles
+            </a>
+            @if (!string.IsNullOrEmpty(Model.ReturnUrl))
+            {
+                <a href="@Model.ReturnUrl" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Reports
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Article Content -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Article Content
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h1 class="display-6 mb-3">@Model.Article.NewsTitle</h1>
+                    @if (!string.IsNullOrEmpty(Model.Article.Headline))
+                    {
+                        <h2 class="h4 text-muted mb-4">@Model.Article.Headline</h2>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.Article.NewsContent))
+                    {
+                        <div class="article-content">
+                            @Html.Raw(Model.Article.NewsContent.Replace("\n", "<br/>"))
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No content available for this article.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Source Information -->
+            @if (!string.IsNullOrEmpty(Model.Article.NewsSource))
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-link me-2"></i>Source Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-external-link-alt text-primary me-2"></i>
+                            <a href="@Model.Article.NewsSource" target="_blank" class="text-decoration-none">
+                                @Model.Article.NewsSource
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Article Metadata -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Article Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-hashtag text-muted me-2"></i>
+                                <div>
+                                    <small class="text-muted">Article ID</small>
+                                    <div class="fw-semibold">@Model.Article.NewsArticleId</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calendar text-muted me-2"></i>
+                                <div>
+                                    <small class="text-muted">Created Date</small>
+                                    <div class="fw-semibold">
+                                        @(Model.Article.CreatedDate?.ToString("MMM dd, yyyy HH:mm") ?? "Unknown")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (Model.Article.ModifiedDate.HasValue)
+                        {
+                            <div class="col-12">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-edit text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted">Last Modified</small>
+                                        <div class="fw-semibold">
+                                            @Model.Article.ModifiedDate.Value.ToString("MMM dd, yyyy HH:mm")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user text-muted me-2"></i>
+                                <div>
+                                    <small class="text-muted">Author</small>
+                                    <div class="fw-semibold">
+                                        @(Model.AuthorName ?? "Unknown")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (Model.Article.CategoryId.HasValue)
+                        {
+                            <div class="col-12">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-tag text-muted me-2"></i>
+                                    <div>
+                                        <small class="text-muted">Category</small>
+                                        <div class="fw-semibold">
+                                            @(Model.CategoryName ?? $"Category ID: {Model.Article.CategoryId}")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-12">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-toggle-on text-muted me-2"></i>
+                                <div>
+                                    <small class="text-muted">Status</small>
+                                    <div>
+                                        @if (Model.Article.NewsStatus == true)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-pause me-1"></i>Inactive
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+            @{
+                var role = HttpContextAccessor.HttpContext?.Session.GetString("UserRole");
+                var userId = HttpContextAccessor.HttpContext?.Session.GetString("UserId");
+                var isAdmin = role == "1";
+                var isOwner = !string.IsNullOrEmpty(userId) && short.TryParse(userId, out var uid) && Model.Article.CreatedById == uid;
+            }
+            
+            @if (isOwner)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog me-2"></i>Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal">
+                                <i class="fas fa-edit me-2"></i>Edit Article
+                            </button>
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash me-2"></i>Delete Article
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    @if (isOwner)
+    {
+        <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-edit me-2"></i>Edit Article
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" asp-page-handler="Edit">
+                        <div class="modal-body">
+                            <input type="hidden" name="NewsArticleId" value="@Model.Article.NewsArticleId" />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fas fa-heading me-1"></i>Article Title
+                                        </label>
+                                        <input class="form-control" name="NewsTitle" value="@Model.Article.NewsTitle" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">
+                                            <i class="fas fa-newspaper me-1"></i>Headline
+                                        </label>
+                                        <input class="form-control" name="Headline" value="@Model.Article.Headline" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-align-left me-1"></i>Content
+                                </label>
+                                <textarea class="form-control" name="NewsContent" rows="6">@Model.Article.NewsContent</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-link me-1"></i>Source
+                                </label>
+                                <input class="form-control" name="NewsSource" value="@Model.Article.NewsSource" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-save me-2"></i>Update Article
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Delete Modal -->
+    @if (isOwner)
+    {
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-trash me-2"></i>Delete Article
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" asp-page-handler="Delete">
+                        <div class="modal-body">
+                            <input type="hidden" name="newsArticleId" value="@Model.Article.NewsArticleId" />
+                            <div class="text-center mb-3">
+                                <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
+                            </div>
+                            <p class="text-center">Are you sure you want to delete the article <strong>"@Model.Article.NewsTitle"</strong>?</p>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Warning:</strong> This action cannot be undone.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                            <button class="btn btn-danger" type="submit">
+                                <i class="fas fa-trash me-2"></i>Delete Article
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<style>
+.article-content {
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.article-content p {
+    margin-bottom: 1rem;
+}
+
+.article-content ul,
+.article-content ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.article-content blockquote {
+    border-left: 4px solid #dee2e6;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #6c757d;
+}
+</style>
+}

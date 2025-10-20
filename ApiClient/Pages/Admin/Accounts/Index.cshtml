@@ -1,0 +1,186 @@
+@page
+@model ApiClient.Pages.Admin.Accounts.IndexModel
+@{
+    ViewData["Title"] = "Account Management";
+}
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var userRole = HttpContextAccessor.HttpContext?.Session.GetString("UserRole");
+    var isAdmin = userRole == "1";
+}
+
+@if (!isAdmin)
+{
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-ban fa-4x text-danger"></i>
+                        </div>
+                        <h2 class="text-danger mb-3">You're Denied!</h2>
+                        <p class="text-muted mb-4">You don't have permission to access this page.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="/" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Go Home
+                            </a>
+                            <a href="/Profile" class="btn btn-outline-secondary">
+                                <i class="fas fa-user me-2"></i>View Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="fas fa-users text-primary me-2"></i>Account Management
+        </h2>
+        <p class="text-muted mb-0">Manage system accounts and user permissions</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+        <i class="fas fa-plus me-2"></i>Create Account
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>@Model.ErrorMessage
+    </div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>System Accounts
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user me-1"></i>Name</th>
+                        <th><i class="fas fa-envelope me-1"></i>Email</th>
+                        <th><i class="fas fa-shield-alt me-1"></i>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var a in Model.Accounts)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span class="fw-medium">@a.AccountName</span>
+                            </div>
+                        </td>
+                        <td>@a.AccountEmail</td>
+                        <td>
+                            @if (a.AccountRole == 1)
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-crown me-1"></i>Administrator
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info">
+                                    <i class="fas fa-user-tie me-1"></i>Staff
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create Account Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Create New Account
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-user me-1"></i>Full Name
+                                </label>
+                                <input class="form-control" name="AccountName" placeholder="Enter full name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-1"></i>Email Address
+                                </label>
+                                <input class="form-control" name="AccountEmail" type="email" placeholder="Enter email address" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-shield-alt me-1"></i>Role
+                                </label>
+                                <select class="form-select" name="AccountRole" required>
+                                    <option value="">Select a role</option>
+                                    <option value="1">Administrator</option>
+                                    <option value="2">Staff</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-1"></i>Password
+                                </label>
+                                <input class="form-control" name="AccountPassword" type="password" placeholder="Enter password" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-save me-2"></i>Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+</style>
+}
+
+

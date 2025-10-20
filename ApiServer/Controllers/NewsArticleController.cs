@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 using BussinessObjects.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ApiServer.Controllers
 {
@@ -95,11 +96,40 @@ namespace ApiServer.Controllers
             }
         }
 
+        public class NewsArticleRequest
+        {
+            // Nullable so ApiController doesn't reject missing ID for create
+            public string? NewsArticleId { get; set; }
+            [Required]
+            public string? Headline { get; set; }
+            [Required]
+            public string? NewsContent { get; set; }
+            public string? NewsTitle { get; set; }
+            public string? NewsSource { get; set; }
+            public short? CategoryId { get; set; }
+            public bool? NewsStatus { get; set; }
+            public short? CreatedById { get; set; }
+            public short? UpdatedById { get; set; }
+        }
+
         [HttpPost]
-        public IActionResult CreateArticle([FromBody] NewsArticle article)
+        public IActionResult CreateArticle([FromBody] NewsArticleRequest req)
         {
             try
             {
+                var article = new NewsArticle
+                {
+                    NewsArticleId = req.NewsArticleId ?? string.Empty, // service will generate if empty
+                    NewsTitle = req.NewsTitle,
+                    Headline = req.Headline ?? string.Empty,
+                    NewsContent = req.NewsContent ?? string.Empty,
+                    NewsSource = req.NewsSource,
+                    CategoryId = req.CategoryId,
+                    NewsStatus = req.NewsStatus,
+                    CreatedById = req.CreatedById,
+                    UpdatedById = req.UpdatedById
+                };
+
                 var createdArticle = _newsArticleService.Create(article);
                 return Ok(new { success = true, data = createdArticle });
             }
@@ -110,10 +140,26 @@ namespace ApiServer.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateArticle([FromBody] NewsArticle article)
+        public IActionResult UpdateArticle([FromBody] NewsArticleRequest req)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(req.NewsArticleId))
+                    return BadRequest(new { success = false, error = "NewsArticleId is required." });
+
+                var article = new NewsArticle
+                {
+                    NewsArticleId = req.NewsArticleId!,
+                    NewsTitle = req.NewsTitle,
+                    Headline = req.Headline ?? string.Empty,
+                    NewsContent = req.NewsContent ?? string.Empty,
+                    NewsSource = req.NewsSource,
+                    CategoryId = req.CategoryId,
+                    NewsStatus = req.NewsStatus,
+                    CreatedById = req.CreatedById,
+                    UpdatedById = req.UpdatedById
+                };
+
                 var updatedArticle = _newsArticleService.Update(article);
                 return Ok(new { success = true, data = updatedArticle });
             }
