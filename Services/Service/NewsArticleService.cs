@@ -216,7 +216,9 @@ namespace Services.Service
 
         private static string GenerateArticleId()
         {
-            return "ART" + DateTime.Now.ToString("yyyyMMddHHmmss") + new Random().Next(1000, 9999);
+            // Must fit nvarchar(20): 3 (ART) + 14 (yyyyMMddHHmmss) + 3 (random) = 20
+            var id = "ART" + DateTime.Now.ToString("yyyyMMddHHmmss") + new Random().Next(100, 999);
+            return id;
         }
     }
 }

@@ -56,16 +56,16 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-page="/NewsArticle/Index">
+                                        <i class="fas fa-newspaper me-1"></i>News Articles
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-page="/Admin/Reports/Index">
                                         <i class="fas fa-chart-bar me-1"></i>Reports
                                     </a>
                                 </li>
                             }
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Profile/Index">
-                                    <i class="fas fa-user me-1"></i>Profile
-                                </a>
-                            </li>
                         }
                     </ul>
                     <ul class="navbar-nav">
@@ -77,12 +77,18 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" asp-area="" asp-page="/Profile/Index">
-                                        <i class="fas fa-user me-2"></i>Profile
+                                            <i class="fas fa-home me-1"></i>Dashboard
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" asp-area="" asp-page="/Logout">
+                                    @* <li><a class="dropdown-item text-danger" asp-area="" asp-page="/Logout">
                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                    </a></li>
+                                    </a></li> *@
+                                    <form asp-page="/Logout" method="post" class="dropdown-item p-0 m-0">
+                                        <button type="submit" class="btn btn-link text-danger text-decoration-none w-100 text-start">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                        </button>
+                                    </form>
+
                                 </ul>
                             </li>
                         }

@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
 using ApiClient.Models;
+using ApiClient.Services;
 
 namespace ApiClient.Pages.Admin.Reports
 {
     public class IndexModel : PageModel
     {
         private readonly IHttpClientFactory _factory;
+        private readonly IAccountApi _accountApi;
 
-        public IndexModel(IHttpClientFactory factory)
+        public IndexModel(IHttpClientFactory factory, IAccountApi accountApi)
         {
             _factory = factory;
+            _accountApi = accountApi;
         }
 
         [BindProperty]
@@ -19,7 +22,7 @@ namespace ApiClient.Pages.Admin.Reports
         [BindProperty]
         public DateTime EndDate { get; set; } = DateTime.UtcNow;
 
-        public List<NewsArticleDto> Articles { get; private set; } = new();
+        public List<NewsArticleVm> Articles { get; private set; } = new();
         public string? ErrorMessage { get; private set; }
 
         public void OnGet()
@@ -65,13 +68,42 @@ namespace ApiClient.Pages.Admin.Reports
                 }
 
                 var data = await resp.Content.ReadFromJsonAsync<ODataListResponse<NewsArticleDto>>();
-                Articles = (data?.Value ?? new()).OrderBy(a => a.NewsTitle).ToList();
+                var articles = data?.Value ?? new List<NewsArticleDto>();
+
+                // Fetch author information
+                var accountsTask = _accountApi.ODataListAsync("?$select=AccountId,AccountName&$top=200");
+                await accountsTask;
+                var accounts = accountsTask.Result?.Value ?? new List<SystemAccountDto>();
+                var authorById = accounts.ToDictionary(a => a.AccountId, a => a.AccountName ?? "");
+
+                // Create view models with author names
+                Articles = articles.Select(a => new NewsArticleVm
+                {
+                    NewsArticleId = a.NewsArticleId ?? string.Empty,
+                    NewsTitle = a.NewsTitle,
+                    Headline = a.Headline,
+                    CreatedDate = a.CreatedDate,
+                    NewsStatus = a.NewsStatus,
+                    AuthorName = (a.CreatedById.HasValue && authorById.TryGetValue(a.CreatedById.Value, out var name)) ? name : "Unknown",
+                    CreatedById = a.CreatedById
+                }).OrderBy(a => a.NewsTitle).ToList();
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Unexpected error calling API. URL: {odata}. Error: {ex.Message}";
             }
         }
+    }
+
+    public class NewsArticleVm
+    {
+        public string NewsArticleId { get; set; } = string.Empty;
+        public string? NewsTitle { get; set; }
+        public string? Headline { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public bool? NewsStatus { get; set; }
+        public string AuthorName { get; set; } = string.Empty;
+        public short? CreatedById { get; set; }
     }
 }
 
